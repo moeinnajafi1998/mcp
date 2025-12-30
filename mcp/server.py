@@ -3,11 +3,9 @@ import sys
 import json
 import django
 
-# اضافه کردن مسیر پروژه به PYTHONPATH
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, BASE_DIR)
 
-# معرفی settings پروژه Django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 django.setup()
 
@@ -17,7 +15,7 @@ from mcp.tools import TOOL_REGISTRY
 def main():
     for line in sys.stdin:
         if not line.strip():
-            continue  # ignore empty lines
+            continue  
         try:
             payload = json.loads(line.strip())
         except json.JSONDecodeError:
