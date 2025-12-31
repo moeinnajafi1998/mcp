@@ -1,0 +1,317 @@
+# 🧠 MCP-based Todo Management System
+
+## 1. Introduction (Business Overview)
+
+This project is a **simple Task (Todo) Management System** designed to demonstrate:
+
+* Clean backend architecture
+* Clear separation between business logic and interface
+* Ability to expose functionality to **AI / LLM systems** using a custom protocol (MCP)
+
+The system allows users to:
+
+* Create tasks
+* View tasks
+* Update task status
+* Delete tasks
+
+All operations can be done **without a graphical UI**, using a command-line interface.
+
+---
+
+## 2. Why This Project Exists
+
+In many real-world systems:
+
+* We need a backend that is **not tied to a UI**
+* We want to expose business logic to:
+
+  * CLI tools
+  * Automation scripts
+  * AI agents / LLMs
+
+This project demonstrates exactly that:
+
+* A **Django backend**
+* A **custom MCP Server** (JSON over stdin/stdout)
+* A **CLI Client** that talks to the server
+
+---
+
+## 3. Core Concepts (Explained Simply)
+
+### 3.1 Task
+
+A Task represents a unit of work.
+
+Each task has:
+
+* `title` – what needs to be done
+* `description` – optional details
+* `status` – current state of the task
+  (`pending`, `in_progress`, `done`)
+* `created_at`, `updated_at` – timestamps
+
+---
+
+### 3.2 MCP (Model Command Protocol)
+
+MCP is a **very simple communication protocol**:
+
+* Input: JSON
+* Output: JSON
+* Transport: standard input / output (stdin / stdout)
+
+Why this matters:
+
+* No HTTP needed
+* Very easy to integrate with AI models
+* Works well in CLI environments
+
+---
+
+### 3.3 MCP Server
+
+The MCP Server:
+
+* Is a standalone Python process
+* Loads Django and connects to the database
+* Exposes **tools** like:
+
+  * `create_task`
+  * `list_tasks`
+  * `update_task_status`
+  * `delete_task`
+
+Each tool:
+
+* Receives structured input
+* Returns structured JSON output
+
+---
+
+### 3.4 MCP Client
+
+The MCP Client:
+
+* Is a command-line program
+* Takes user text commands
+* Converts them into MCP-compatible JSON
+* Sends them to the MCP Server
+* Prints the result
+
+Example:
+
+```
+create Buy groceries
+```
+
+Becomes:
+
+```json
+{
+  "tool": "create_task",
+  "input": {
+    "title": "Buy groceries"
+  }
+}
+```
+
+---
+
+## 4. System Architecture
+
+```
+User
+ ↓
+MCP Client (CLI)
+ ↓
+MCP Server
+ ↓
+Django ORM
+ ↓
+PostgreSQL Database
+```
+
+### Key Advantages
+
+* Modular
+* Easy to test
+* Easy to extend
+* AI-friendly design
+
+---
+
+## 5. Project Structure
+
+```
+mcp/
+├── config/              # Django settings
+├── tasks/               # Task app (models, services)
+├── mcp/                 # MCP Server
+│   ├── server.py
+│   └── tools.py
+├── mcp_client/          # CLI Client
+│   └── cli.py
+├── manage.py
+├── Dockerfile
+├── docker-compose.yml
+├── requirements.txt
+└── README.md
+```
+
+---
+
+## 6. Technology Stack
+
+* Python 3.11
+* Django
+* Django REST Framework
+* PostgreSQL
+* Docker & Docker Compose
+
+---
+
+## 7. Running the Project (Docker – Recommended)
+
+### Prerequisites
+
+* Docker Desktop installed
+* Docker Desktop running (WSL2 enabled on Windows)
+
+---
+
+### Start Everything
+
+From the project root:
+
+```bash
+docker-compose up --build
+```
+
+This will automatically:
+
+* Start PostgreSQL
+* Run Django migrations
+* Start Django server
+* Start MCP Server
+
+---
+
+### Access Django API (Optional)
+
+```
+http://localhost:8000
+```
+
+---
+
+## 8. Running the MCP Client
+
+In a **separate terminal (outside Docker)**:
+
+```bash
+python mcp_client/cli.py
+```
+
+---
+
+## 9. Example Commands
+
+### Create a task
+
+```
+create Buy groceries
+```
+
+### List tasks
+
+```
+list
+```
+
+### Update task status
+
+```
+set status of task 1 to done
+```
+
+### Delete a task
+
+```
+delete task 1
+```
+
+### Exit
+
+```
+exit
+```
+
+---
+
+## 10. Example Output
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "title": "Buy groceries",
+    "description": "",
+    "status": "pending",
+    "created_at": "2025-01-01T12:00:00",
+    "updated_at": "2025-01-01T12:00:00"
+  }
+}
+```
+
+---
+
+## 11. Testing Strategy
+
+To verify everything works:
+
+1. Start Docker services
+2. Run MCP Client
+3. Create a task
+4. List tasks
+5. Update status
+6. Delete task
+7. Confirm results in JSON output
+
+If all steps pass → system is healthy ✅
+
+---
+
+## 12. Design Decisions (Interview-Ready)
+
+* **Service Layer** separates business logic
+* **MCP Server** decouples backend from UI
+* **JSON-only protocol** enables LLM integration
+* **Dockerized setup** ensures easy onboarding
+* **CLI-first design** simplifies testing
+
+---
+
+## 13. Possible Extensions
+
+* Natural language parsing using NLP
+* Authentication & authorization
+* Web UI
+* AI agent integration
+* Task scheduling
+* Multi-user support
+
+---
+
+## 14. Conclusion
+
+This project demonstrates:
+
+* Clean backend architecture
+* Practical use of Django ORM
+* Custom protocol design
+* Real-world readiness for AI integration
+
+It is intentionally simple, but **structurally production-ready**.
